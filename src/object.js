@@ -54,16 +54,16 @@ class gObj extends BaseObject {
     }
     return false;
   }
+  /*Used to set up description for a field*/
+  describe(description){
+    invariant(this._field, `description(...): Description must appear under a field`);
+    this._field.description = description;
+    return this;
+  }
   /*Used to set up resolve for a field*/
   resolve(resolve) {
     invariant(this._field, `resolve(...): Resolve must appear under a field`);
     this._field.resolve = resolve;
-    return this;
-  }
-  /*Used to set up description for a field*/
-  description(description){
-    invariant(this._field, `description(...): Description must appear under a field`);
-    this._field.description = description;
     return this;
   }
   /*Used to check whether the current field is type of the given type*/

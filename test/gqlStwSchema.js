@@ -57,61 +57,30 @@ export const gCharacter = gInterface('Character',
   })
   .gql();
 
-//export const gCharacter =  new GraphQLInterfaceType({
-//  name: 'Character',
-//  description: 'A character in the Star Wars Trilogy',
-//  fields: () => ({
-//    id: {
-//      type: new gRequired(gId),
-//      description: 'The id of the character.',
-//    },
-//    name: {
-//      type: gString,
-//      description: 'The name of the character.',
-//    },
-//    friends: {
-//      type:friendConnection,
-//      args: connectionArgs,
-//      //type: new GraphQLList(characterInterface),
-//      description: 'The friends of the character, or an empty list if they ' +
-//      'have none.',
-//    },
-//    appearsIn: {
-//      type: gList(episodeEnum),
-//      description: 'Which movies they appear in.',
-//    },
-//  }),
-//  resolveType: character => {
-//    return data.getHuman(character.id) ? gHuman : gDroid;
-//  }
-//});
 var {connectionType: friendConnection} =
   connectionDefinitions({name: 'Friend', nodeType: gCharacter});
 export const gHuman = gObject('Human',
   'A humanoid creature in the Star Wars universe.',[gCharacter,nodeInterface])
-  //.field(globalIdField('Human'))//.description('id of the human')
   .field('friends').args(connectionArgs).resolve((human, args)=>connectionFromArray(data.getFriends(human),args))
-  //.field('friends').resolve(human=>data.getFriends(human))
   .field('homePlanet', gString,
     'The home planet of the human, or null if unknown.')
   .gql();
-//console.log(gHuman._typeConfig.fields()['friends'].type._typeConfig.fields()['node']);
+
 const gDroid = gObject('Droid',
   'A mechanical creature in the Star Wars universe.',[gCharacter,nodeInterface])
   .field('friends').args(connectionArgs).resolve((droid, args)=>connectionFromArray(data.getFriends(droid),args))
-  .field(globalIdField('Droid'))
-  //.field('friends').resolve((droid)=>data.getFriends(droid))
+  .field('id').describe('Id of droid updated')
   .field('oldName', gString, "deprecated").deprecated("Deprecated Old Name")//.resolve((droid)=>{return droid.name})
   .field('primaryFunction', gString, 'The primary function of the droid.')
   .gql();
 
-//const gHumanDroid = gUnion("HumanDroid", [gDroid, gHuman], "Union of human and droid")
-//  .resolve((ghd)=>{
-//    if(ghd.homePlanet) return gHuman;
-//    if(ghd.primaryFunction) return gDroid;
-//  })
-//  .gql();
-//console.log(gDroid._typeConfig.fields()['id']);
+const gHumanDroid = gUnion("HumanDroid", [gDroid, gHuman], "Union of human and droid")
+  .resolve((ghd)=>{
+    if(ghd.homePlanet) return gHuman;
+    if(ghd.primaryFunction) return gDroid;
+  })
+  .gql();
+
 const gQuery = gObject('Query')
   .field(nodeField)
   .field('hero', gCharacter, () => data.artoo)

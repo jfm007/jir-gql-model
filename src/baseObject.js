@@ -65,6 +65,8 @@ export default class BaseObject {
           this._field.resolve = resolve;
         if (type)
           this._field.type = type;
+        if(name === 'id' && (description || resolve || type))
+          console.log(this._field);
       }
       else {
         invariant(type,
