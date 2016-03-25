@@ -1,7 +1,7 @@
 import invariant from 'invariant';
 import BaseObject from './baseObject';
 import _ from 'lodash';
-import { GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLScalarType} from 'graphql';
+import { GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLScalarType, GraphQLInterfaceType} from 'graphql';
 import { globalIdField } from 'graphql-relay';
 
 /*gObj is used to construct GraphQLObjectType. It inherits from the BaseObject class
@@ -18,11 +18,11 @@ class gObj extends BaseObject {
     else
        this.interfaces = args[2];
     this._addInterfaceFields();
-    //console.log(this.fields);
   }
 
   /*used to add the fields defined in the interfaces to the current type*/
   _addInterfaceFields(){
+    var nonInterfaces = [];
     if(this.interfaces && this.interfaces.length > 0){
       this.interfaces.forEach(i=>{
         if(this._isNodeInterface(i)){
@@ -41,9 +41,23 @@ class gObj extends BaseObject {
             this._field = {...field, name: fieldName, description};
             this._saveField();
           });
+
+          if(!(i instanceof GraphQLInterfaceType))
+              nonInterfaces.push(i);
         }
       })
     }
+    if(nonInterfaces[0]){
+      this.interfaces = this.interfaces.filter(x=>!nonInterfaces.find((i)=>i.name === x.name));
+      nonInterfaces.forEach((obj)=>{
+        obj._typeConfig.interfaces.forEach((i)=>{
+          if(this.interfaces.find((item)=>item.name === i.name)) return;
+          this.interfaces.push(i);
+        });
+      });
+    }
+
+
     return this;
   }
   /*Used to check whether the given type is node interface type*/

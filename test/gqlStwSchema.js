@@ -65,21 +65,23 @@ export const gHuman = gObject('Human',
   .field('homePlanet', gString,
     'The home planet of the human, or null if unknown.')
   .gql();
-
+//console.log(gHuman._typeConfig);
+//const gDroid = gObject('Droid',
+//  'A mechanical creature in the Star Wars universe.',[gCharacter,nodeInterface])
 const gDroid = gObject('Droid',
-  'A mechanical creature in the Star Wars universe.',[gCharacter,nodeInterface])
+  'A mechanical creature in the Star Wars universe.',[gHuman])
   .field('friends').args(connectionArgs).resolve((droid, args)=>connectionFromArray(data.getFriends(droid),args))
   .field('id').describe('Id of droid updated')
   .field('oldName', gString, "deprecated").deprecated("Deprecated Old Name")//.resolve((droid)=>{return droid.name})
   .field('primaryFunction', gString, 'The primary function of the droid.')
   .gql();
 
-const gHumanDroid = gUnion("HumanDroid", [gDroid, gHuman], "Union of human and droid")
-  .resolve((ghd)=>{
-    if(ghd.homePlanet) return gHuman;
-    if(ghd.primaryFunction) return gDroid;
-  })
-  .gql();
+//const gHumanDroid = gUnion("HumanDroid", [gDroid, gHuman], "Union of human and droid")
+//  .resolve((ghd)=>{
+//    if(ghd.homePlanet) return gHuman;
+//    if(ghd.primaryFunction) return gDroid;
+//  })
+//  .gql();
 
 const gQuery = gObject('Query')
   .field(nodeField)
